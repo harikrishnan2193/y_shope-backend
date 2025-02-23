@@ -119,10 +119,10 @@ exports.getAllUsers = async (req, res) => {
 }
 
 exports.addToCart = async (req, res) => {
-    console.log('inside addToCart controller');  
+    console.log('inside addToCart controller');
     try {
         const { productId, name, price, quantity, productImage } = req.body;
-        const userId = req.payload; //acces from middleware
+        const userId = req.payload; // from middleware
 
         // product availability
         const product = await Product.findOne({ _id: productId });
@@ -136,7 +136,7 @@ exports.addToCart = async (req, res) => {
         }
         else {
             // if item is already in cart
-            let cartItem = await Carts.findOne({ productId,userId });
+            let cartItem = await Carts.findOne({ productId, userId });
 
             if (cartItem) {
                 res.status(400).json({ message: "Item already in cart" });
@@ -166,18 +166,17 @@ exports.getCartItems = async (req, res) => {
             return res.status(400).json({ message: "User ID is required" });
         }
 
-        const cartItems = await Carts.find({ userId })
+        const cartItems = await Carts.find({ userId });
 
-        if (!cartItems.length) {
-            return res.status(404).json({ message: "No items found in the cart" });
-        }
+        // return an empty array 
+        return res.status(200).json(cartItems.length ? cartItems : []);
 
-        res.status(200).json(cartItems);
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).json({ message: "Error fetching cart items", error });
     }
 }
+
 
 exports.getAllProduct = async (req, res) => {
     try {
@@ -205,11 +204,11 @@ exports.getAllOrders = async (req, res) => {
                 const user = await users.findById(product.userId);
                 return {
                     ...product._doc,
-                    username: user ? user.name : "Unknown",
-                    email: user ? user.email : "No email",
-                };
+                    username: user ? user.name : "unknown",
+                    email: user ? user.email : "no email",
+                }
             })
-        );
+        )
 
         res.status(200).json(productDetails);
         // console.log("Final product details:", productDetails);
@@ -280,5 +279,47 @@ exports.updateQuantity = async (req, res) => {
     } catch (error) {
         console.error("Error updating cart quantity:", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+exports.deleteCartItem = async (req, res) => {
+    console.log('Inside deleteCartItem controller');
+
+    const { cartItemId } = req.params;
+    const { quantity } = req.body;
+
+    try {
+        const parsedQuantity = Number(quantity);
+        if (isNaN(parsedQuantity) || parsedQuantity < 0) {
+            res.status(400).json("Invalid quantity value");
+        }
+
+        // find the cart item by ID
+        const cart = await Carts.findById(cartItemId);
+        if (!cart) {
+            res.status(404).json("Cart item not found");
+        }
+
+        const productId = cart.productId;
+        // console.log("Product ID:", productId);
+
+        // find the product 
+        const product = await Product.findById(productId);
+        if (!product) {
+            res.status(404).json("Product not found");
+        }
+
+        // update stock
+        product.stock = Number(product.stock) + parsedQuantity;
+        await product.save();
+
+        // delete cart item
+        await Carts.findByIdAndDelete(cartItemId);
+
+        res.status(200).json("Product removed from your cart successfully");
+        console.log('Product removed from cart and stock updated successfully');
+    } catch (error) {
+        console.error("Error deleting cart item:", error);
+        res.status(500).json("Internal server error");
     }
 }

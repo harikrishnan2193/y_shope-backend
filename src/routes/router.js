@@ -35,6 +35,8 @@ router.get("/orders/all", userController.getAllOrders)
 //update the quantity
 router.put('/cart/update/:cartItemId', userController.updateQuantity)
 
+//delete prodect from cart
+router.delete('/cart/delete/:cartItemId', userController.deleteCartItem);
 
 
 module.exports = router
