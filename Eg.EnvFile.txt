@@ -1,2 +1,9 @@
 CONNECTION_STRING = mongodb+srv://harikrishnank2193:y-shope$79k@cluster0.smqn3.mongodb.net/y_shope_data?retryWrites=true&w=majority&appName=Cluster0
 PORT = 5000
+
+
+
+superadmin detilas and password
+-------------------------------
+email:- watson@gmail.com 
+password:- watson123

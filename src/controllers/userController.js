@@ -121,18 +121,37 @@ exports.getAllUsers = async (req, res) => {
 exports.addToCart = async (req, res) => {
     try {
         const { productId, name, price, quantity, productImage } = req.body;
-        const userId = req.payload
+        const userId = req.payload;
 
-        let cartItem = await Carts.findOne({ productId });
+        // product availability
+        const product = await Product.findOne({ _id: productId });
 
-        if (cartItem) {
-            return res.status(400).json({ message: "Item already in cart" });
+        if (!product) {
+            res.status(404).json({ message: "Product not found" });
         }
 
-        cartItem = new Carts({ productId, name, price, quantity, productImage, userId });
-        await cartItem.save();
+        if (product.stock < 1) {
+            res.status(400).json({ message: "Out of stock" });
+        }
+        else {
+            // if item is already in cart
+            let cartItem = await Carts.findOne({ productId });
 
-        res.status(201).json({ message: "Item added to cart", cartItem });
+            if (cartItem) {
+                res.status(400).json({ message: "Item already in cart" });
+            } else {
+                // add to cart
+                cartItem = new Carts({ productId, name, price, quantity, productImage, userId });
+                await cartItem.save();
+
+                // decrease by 1
+                product.stock -= 1;
+                await product.save();
+
+                res.status(200).json({ message: "Item added to cart successfully!", cartItem });
+            }
+        }
+
     } catch (error) {
         res.status(500).json({ message: "Error adding to cart", error });
     }
@@ -261,4 +280,4 @@ exports.updateQuantity = async (req, res) => {
         console.error("Error updating cart quantity:", error);
         res.status(500).json({ message: "Internal server error" });
     }
-};
+}
