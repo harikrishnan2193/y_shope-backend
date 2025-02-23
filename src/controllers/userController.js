@@ -119,6 +119,7 @@ exports.getAllUsers = async (req, res) => {
 }
 
 exports.addToCart = async (req, res) => {
+    console.log('inside addToCart controller');  
     try {
         const { productId, name, price, quantity, productImage } = req.body;
         const userId = req.payload; //acces from middleware
@@ -135,7 +136,7 @@ exports.addToCart = async (req, res) => {
         }
         else {
             // if item is already in cart
-            let cartItem = await Carts.findOne({ productId });
+            let cartItem = await Carts.findOne({ productId,userId });
 
             if (cartItem) {
                 res.status(400).json({ message: "Item already in cart" });
@@ -256,7 +257,7 @@ exports.updateQuantity = async (req, res) => {
         // if increasing 
         if (delta > 0) {
             if (delta > currentStock) {
-                return res.status(400).json({ message: "No stock available more than the current stock" });
+                return res.status(400).json({ message: "No stock available more than this" });
             }
             currentStock -= delta;
         }
