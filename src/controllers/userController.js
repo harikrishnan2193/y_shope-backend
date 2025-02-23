@@ -177,7 +177,6 @@ exports.getCartItems = async (req, res) => {
     }
 }
 
-
 exports.getAllProduct = async (req, res) => {
     try {
         const allProducts = await Product.find();
@@ -195,7 +194,7 @@ exports.getAllProduct = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
     try {
         const allProducts = await Carts.find();
-        console.log("allProducts is:", allProducts);
+        // console.log("allProducts is:", allProducts);
 
         const productDetails = await Promise.all(
             allProducts.map(async (product) => {
