@@ -48,7 +48,7 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign({ userId: existUser._id }, "secretchatAppkey12345");
-        console.log('Token is', token);
+        // console.log('Token is', token);
 
 
         return res.status(200).json({ existUser, token });
@@ -61,7 +61,7 @@ exports.addProduct = async (req, res) => {
     console.log('inside addProject controller');
     const { name, price, stock } = req.body;
     const productImage = req.file.filename
-    console.log(productImage);
+    // console.log(productImage);
 
     try {
         const existingProduct = await Product.findOne({ name })
@@ -121,7 +121,7 @@ exports.getAllUsers = async (req, res) => {
 exports.addToCart = async (req, res) => {
     try {
         const { productId, name, price, quantity, productImage } = req.body;
-        const userId = req.payload;
+        const userId = req.payload; //acces from middleware
 
         // product availability
         const product = await Product.findOne({ _id: productId });
@@ -183,9 +183,9 @@ exports.getAllProduct = async (req, res) => {
         const allProducts = await Product.find();
         res.status(200).json(allProducts);
 
-        allProducts.forEach(product => {
-            console.log(product.userId);
-        });
+        // allProducts.forEach(product => {
+        //     console.log(product.userId);
+        // });
 
     } catch (err) {
         res.status(401).json(`Request failed due to ${err}`);
@@ -199,7 +199,7 @@ exports.getAllOrders = async (req, res) => {
 
         const productDetails = await Promise.all(
             allProducts.map(async (product) => {
-                console.log("product.userId is:", product.userId);
+                // console.log("product.userId is:", product.userId);
 
                 const user = await users.findById(product.userId);
                 return {
@@ -211,7 +211,7 @@ exports.getAllOrders = async (req, res) => {
         );
 
         res.status(200).json(productDetails);
-        console.log("Final product details:", productDetails);
+        // console.log("Final product details:", productDetails);
 
     } catch (err) {
         res.status(500).json({ message: `Request failed due to ${err}` });
