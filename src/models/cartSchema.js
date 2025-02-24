@@ -1,6 +1,6 @@
-const mangoose = require('mongoose')
+const mongoose = require('mongoose')
 
-const cartSchema = new mangoose.Schema({
+const cartSchema = new mongoose.Schema({
     productId: {
         type: String,
         require: true
@@ -27,6 +27,6 @@ const cartSchema = new mangoose.Schema({
     }
 })
 
-const carts = mangoose.model('carts', cartSchema)
+const carts = mongoose.model('carts', cartSchema)
 
 module.exports = carts

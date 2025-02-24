@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    console.log('Inside login function');
+    console.log('Inside login controller');
 
     const { email, password } = req.body;
 

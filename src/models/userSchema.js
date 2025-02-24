@@ -1,24 +1,33 @@
-const mangoose = require('mongoose')
+const mongoose = require('mongoose');
+const validator = require('validator');
 
-const userSchema = new mangoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        require: true
+        required: true,
+        minlength: [3, 'Must be at least 3 characters long']
     },
     email: {
         type: String,
-        require: true
+        required: true,
+        unique: true,
+        validate: {
+            validator: (value) => validator.isEmail(value),
+            message: 'Invalid email address'
+        }
     },
     password: {
         type: String,
-        require: true
+        required: true,
+        minlength: [6, 'Password must be at least 6 characters long']
     },
-    role:{
-        type:String,
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
         default: 'user'
     }
 })
 
-const users = mangoose.model('users', userSchema)
+const Users = mongoose.model('Users', userSchema)
 
-module.exports = users
+module.exports = Users
