@@ -12,3 +12,7 @@ This project provides a minimal setup for a Node.js server.
 
    ```bash
    npm install
+2. **Start server:**
+
+   ```bash
+   node index.js
