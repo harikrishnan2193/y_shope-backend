@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
         const existUser = await users.findOne({ email })
 
         if (existUser) {
-            res.status(406).json('user already exist. Please login')
+            res.status(406).json('User already exist. Please login')
         }
         else {
             // hash password
@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
             return res.status(406).json('Incorrect email or password');
         }
 
-        const token = jwt.sign({ userId: existUser._id }, "secretchatAppkey12345");
+        const token = jwt.sign({ userId: existUser._id }, "$ecret$uperAppkey12345");
         // console.log('Token is', token);
 
 
@@ -85,27 +85,27 @@ exports.addProduct = async (req, res) => {
 exports.updateStock = async (req, res) => {
     console.log('Inside updateStock controller');
     try {
-        const { productId } = req.params;
-        const { stock } = req.body;
+        const { productId } = req.params
+        const { stock } = req.body
 
         if (!stock || isNaN(stock) || stock < 0) {
-            return res.status(400).json({ message: "Invalid stock value" });
+            return res.status(400).json({ message: "Invalid stock value" })
         }
 
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId)
         if (!product) {
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ message: "Product not found" })
         }
-        const currentStock = Number(product.stock);
-        const newStock = Number(stock);
+        const currentStock = Number(product.stock)
+        const newStock = Number(stock)
 
-        product.stock = currentStock + newStock;
+        product.stock = currentStock + newStock
         await product.save();
 
-        res.status(200).json({ message: "Stock updated successfully", product });
+        res.status(200).json({ message: "Stock updated successfully", product })
     } catch (error) {
         console.error("Error updating stock:", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" })
     }
 }
 
@@ -125,36 +125,36 @@ exports.addToCart = async (req, res) => {
         const userId = req.payload; // from middleware
 
         // product availability
-        const product = await Product.findOne({ _id: productId });
+        const product = await Product.findOne({ _id: productId })
 
         if (!product) {
-            res.status(404).json({ message: "Product not found" });
+            res.status(404).json({ message: "Product not found" })
         }
 
         if (product.stock < 1) {
-            res.status(400).json({ message: "Out of stock" });
+            res.status(400).json({ message: "Out of stock" })
         }
         else {
             // if item is already in cart
-            let cartItem = await Carts.findOne({ productId, userId });
+            let cartItem = await Carts.findOne({ productId, userId })
 
             if (cartItem) {
-                res.status(400).json({ message: "Item already in cart" });
+                res.status(400).json({ message: "Item already in cart" })
             } else {
                 // add to cart
-                cartItem = new Carts({ productId, name, price, quantity, productImage, userId });
+                cartItem = new Carts({ productId, name, price, quantity, productImage, userId })
                 await cartItem.save();
 
                 // decrease by 1
                 product.stock -= 1;
                 await product.save();
 
-                res.status(200).json({ message: "Item added to cart successfully!", cartItem });
+                res.status(200).json({ message: "Item added to cart successfully!", cartItem })
             }
         }
 
     } catch (error) {
-        res.status(500).json({ message: "Error adding to cart", error });
+        res.status(500).json({ message: "Error adding to cart", error })
     }
 }
 
@@ -179,28 +179,28 @@ exports.getCartItems = async (req, res) => {
 
 exports.getAllProduct = async (req, res) => {
     try {
-        const allProducts = await Product.find();
-        res.status(200).json(allProducts);
+        const allProducts = await Product.find()
+        res.status(200).json(allProducts)
 
         // allProducts.forEach(product => {
         //     console.log(product.userId);
         // });
 
     } catch (err) {
-        res.status(401).json(`Request failed due to ${err}`);
+        res.status(401).json(`Request failed due to ${err}`)
     }
 }
 
 exports.getAllOrders = async (req, res) => {
     try {
-        const allProducts = await Carts.find();
+        const allProducts = await Carts.find()
         // console.log("allProducts is:", allProducts);
 
         const productDetails = await Promise.all(
             allProducts.map(async (product) => {
                 // console.log("product.userId is:", product.userId);
 
-                const user = await users.findById(product.userId);
+                const user = await users.findById(product.userId)
                 return {
                     ...product._doc,
                     username: user ? user.name : "unknown",
@@ -209,11 +209,11 @@ exports.getAllOrders = async (req, res) => {
             })
         )
 
-        res.status(200).json(productDetails);
+        res.status(200).json(productDetails)
         // console.log("Final product details:", productDetails);
 
     } catch (err) {
-        res.status(500).json({ message: `Request failed due to ${err}` });
+        res.status(500).json({ message: `Request failed due to ${err}` })
     }
 }
 
@@ -221,60 +221,60 @@ exports.updateQuantity = async (req, res) => {
     console.log('inside updateQuantity controller');
 
     try {
-        const { cartItemId } = req.params;
-        const { quantity } = req.body;
-        const newQuantity = Number(quantity);
+        const { cartItemId } = req.params
+        const { quantity } = req.body
+        const newQuantity = Number(quantity)
 
         // validate quantity
         if (isNaN(newQuantity) || newQuantity < 1) {
-            return res.status(400).json({ message: "Invalid quantity" });
+            return res.status(400).json({ message: "Invalid quantity" })
         }
 
         // find the cart item
-        const cartItem = await Carts.findById(cartItemId);
+        const cartItem = await Carts.findById(cartItemId)
         if (!cartItem) {
-            return res.status(404).json({ message: "Cart item not found" });
+            return res.status(404).json({ message: "Cart item not found" })
         }
 
-        // product associated with this item
-        const product = await Product.findById(cartItem.productId);
+        // product is existing or not
+        const product = await Product.findById(cartItem.productId)
         if (!product) {
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ message: "Product not found" })
         }
 
         // convert to number
-        let currentStock = Number(product.stock);
+        let currentStock = Number(product.stock)
         if (isNaN(currentStock)) {
-            return res.status(500).json({ message: "Invalid stock value in product" });
+            return res.status(500).json({ message: "Invalid stock value in product" })
         }
 
         // calculate the difference 
-        const oldQuantity = Number(cartItem.quantity);
-        const delta = newQuantity - oldQuantity;
+        const oldQuantity = Number(cartItem.quantity)
+        const delta = newQuantity - oldQuantity
 
         // if increasing 
         if (delta > 0) {
             if (delta > currentStock) {
-                return res.status(400).json({ message: "No stock available more than this" });
+                return res.status(400).json({ message: `No product stock available more than ${newQuantity - 1}` })
             }
-            currentStock -= delta;
+            currentStock -= delta
         }
         else if (delta < 0) {
-            currentStock += Math.abs(delta);
+            currentStock += Math.abs(delta)
         }
 
         // update cart item quantity and update product stock
-        cartItem.quantity = newQuantity;
-        product.stock = currentStock;
-        await cartItem.save();
-        await product.save();
+        cartItem.quantity = newQuantity
+        product.stock = currentStock
+        await cartItem.save()
+        await product.save()
 
         let responseMessage = "Cart item updated successfully";
         if (currentStock === 0) {
-            responseMessage += ". Product is now out of stock";
+            responseMessage += " and Product reach the avilable stock limit";
         }
 
-        res.status(200).json({ message: responseMessage, cartItem });
+        res.status(200).json({ message: responseMessage, cartItem })
     } catch (error) {
         console.error("Error updating cart quantity:", error);
         res.status(500).json({ message: "Internal server error" });

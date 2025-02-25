@@ -7,13 +7,13 @@ const jwtMiddleWare = (req, res, next) => {
     console.log(token);
 
     try {
-        const jwtResponse = jwt.verify(token, "secretchatAppkey12345")
+        const jwtResponse = jwt.verify(token, "$ecret$uperAppkey12345")
         console.log(jwtResponse);
         req.payload = jwtResponse.userId
         next()
 
     } catch (err) {
-        res.status(401).json('Authorization failed.....you have no access')
+        res.status(401).json('Authorization failed.....you have no access. Login again')
     }
 
 
