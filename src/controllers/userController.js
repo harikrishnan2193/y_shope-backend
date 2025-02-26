@@ -37,23 +37,23 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const existUser = await users.findOne({ email });
+        const existUser = await users.findOne({ email })
         if (!existUser) {
-            return res.status(406).json('Incorrect email or password');
+            return res.status(406).json('Incorrect email or password')
         }
 
-        const isMatch = await bcrypt.compare(password, existUser.password);
+        const isMatch = await bcrypt.compare(password, existUser.password)
         if (!isMatch) {
-            return res.status(406).json('Incorrect email or password');
+            return res.status(406).json('Incorrect email or password')
         }
 
-        const token = jwt.sign({ userId: existUser._id }, "$ecret$uperAppkey12345");
+        const token = jwt.sign({ userId: existUser._id }, "$ecret$uperAppkey12345")
         // console.log('Token is', token);
 
 
-        return res.status(200).json({ existUser, token });
+        return res.status(200).json({ existUser, token })
     } catch (error) {
-        return res.status(401).json(`Login failed due to ${error}`);
+        return res.status(401).json(`Login failed due to ${error}`)
     }
 }
 
@@ -67,7 +67,7 @@ exports.addProduct = async (req, res) => {
         const existingProduct = await Product.findOne({ name })
 
         if (existingProduct) {
-            res.status(406).json('Product name is alredy exist..')
+            res.status(406).json({ message: 'Product name is alredy exist..' })
         }
         else {
             const newProduct = new Product({
@@ -77,7 +77,7 @@ exports.addProduct = async (req, res) => {
             res.status(200).json(newProduct)
         }
     } catch (error) {
-        res.status(401).json(`request failed due to ${error}`)
+        res.status(401).json({ message: `request failed due to ${error}` })
     }
 
 }
@@ -139,7 +139,7 @@ exports.addToCart = async (req, res) => {
             let cartItem = await Carts.findOne({ productId, userId })
 
             if (cartItem) {
-                res.status(400).json({ message: "Item already in cart" })
+                res.status(400).json({ message: "Item already in your cart" })
             } else {
                 // add to cart
                 cartItem = new Carts({ productId, name, price, quantity, productImage, userId })
