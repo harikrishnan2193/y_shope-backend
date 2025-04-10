@@ -3,7 +3,7 @@ const userController = require('../controllers/userController')
 const jwtMiddleWare = require('../middleware/jwtMiddleware')
 const multerConfig = require('../middleware/multterMiddleware')
 
-const router = express.Router()
+const router = new express.Router()
 
 //register 
 router.post('/users/register', userController.register)
